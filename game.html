@@ -3,27 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaveFun - Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Cyberpunk Spaceship Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #121212; /* Dark background */
+            color: #00ff99; /* Neon green text */
+            font-family: 'Arial', sans-serif;
+        }
+        #gameArea {
+            position: relative;
+            width: 100%;
+            height: 400px; /* Game area height */
+            border: 2px solid #00ff99; /* Neon border */
+            overflow: hidden;
+            background: radial-gradient(circle, #0a0a0a, #121212); /* Dark gradient */
+        }
+        #spaceship {
+            position: absolute;
+            width: 50px; /* Size of spaceship */
+            bottom: 20px; /* Starting position */
+            left: 50px; /* Starting position */
+        }
+        .obstacle {
+            position: absolute;
+            width: 50px; /* Size of obstacles */
+            bottom: 0;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #00ff99; /* Neon green score text */
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#journey">Our Journey</a></li>
-            <li><a href="#connect">Connect with Us</a></li>
-        </ul>
-    </nav>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <div id="scoreBoard">
-            <span id="score">Score: 0</span>
-            <span id="highScore">High Score: 0</span>
-        </div>
-    </div>
-    <audio id="jumpSound" src="jump-sound.mp3"></audio>
-    <audio id="startSound" src="start-sound.mp3"></audio>
-    <script src="game.js"></script>
+
+<div id="gameArea">
+    <img id="spaceship" src="spaceship.png" alt="Spaceship">
+    <div id="score">Score: 0</div>
+</div>
+
+<audio id="jumpSound" src="jump-sound.mp3"></audio>
+<audio id="startSound" src="start-sound.mp3"></audio>
+
+<script>
+    const spaceship = document.getElementById('spaceship');
+    const gameArea = document.getElementById('gameArea');
+    const scoreDisplay = document.getElementById('score');
+    const jumpSound = document.getElementById('jumpSound');
+    const startSound = document.getElementById('startSound');
+    let score = 0;
+    let gameOver = false;
+
+    function createObstacle(type) {
+        const obstacle = document.createElement('img');
+        obstacle.src = type === 'planet' ? 'planet.png' : 'asteroid.png';
+        obstacle.className = 'obstacle';
+        obstacle.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
+        gameArea.appendChild(obstacle);
+
+        let obstacleInterval = setInterval(() => {
+            if (gameOver) {
+                clearInterval(obstacleInterval);
+                return;
+            }
+            obstacle.style.bottom = `${parseInt(obstacle.style.bottom) - 2}px`; // Move down
+            if (parseInt(obstacle.style.bottom) < -50) {
+                score++;
+                scoreDisplay.innerText = `Score: ${score}`;
+                obstacle.remove(); // Remove obstacle after it leaves the screen
+                clearInterval(obstacleInterval);
+            }
+            if (isColliding(spaceship, obstacle)) {
+                clearInterval(obstacleInterval);
+                endGame();
+            }
+        }, 20);
+    }
+
+    function isColliding(rect1, rect2) {
+        const rect1Bounds = rect1.getBoundingClientRect();
+        const rect2Bounds = rect2.getBoundingClientRect();
+        return !(
+            rect1Bounds.top > rect2Bounds.bottom ||
+            rect1Bounds.bottom < rect2Bounds.top ||
+            rect1Bounds.right < rect2Bounds.left ||
+            rect1Bounds.left > rect2Bounds.right
+        );
+    }
+
+    function endGame() {
+        gameOver = true;
+        alert(`Game Over! Your score: ${score}`);
+        score = 0;
+        scoreDisplay.innerText = `Score: ${score}`;
+        setTimeout(startGame, 1000);
+    }
+
+    function startGame() {
+        gameArea.innerHTML = '';
+        gameArea.appendChild(spaceship);
+        scoreDisplay.innerText = `Score: ${score}`;
+        gameOver = false;
+
+        setInterval(() => createObstacle('planet'), 2000); // Create planets every 2 seconds
+        setInterval(() => createObstacle('asteroid'), 2000); // Create asteroids every 2 seconds
+        startSound.play(); // Play start sound
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+            jumpSound.play(); // Play jump sound
+            spaceship.style.bottom = `${parseInt(spaceship.style.bottom) + 50}px`; // Jump
+            setTimeout(() => {
+                spaceship.style.bottom = `${parseInt(spaceship.style.bottom) - 50}px`; // Fall
+            }, 500);
+        }
+    });
+
+    startGame(); // Start the game when the page loads
+</script>
+
 </body>
 </html>
