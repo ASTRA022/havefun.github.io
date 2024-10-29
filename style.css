@@ -24,22 +24,17 @@ nav ul li {
 
 #gameArea {
     position: relative;
-    height: 400px; /* Adjust height for the game area */
-    margin-top: 20px;
+    margin: 20px auto;
+    width: 600px; /* Set width for the game area */
+    height: 200px; /* Set height for the game area */
     background: #111; /* Dark background for the game area */
 }
 
 #gameCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
 }
 
 #scoreBoard {
-    position: absolute;
-    top: 10px;
-    left: 10px;
     color: white;
 }
