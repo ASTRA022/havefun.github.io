@@ -3,17 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaveFun - Start Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Have Fun</title>
+    <style>
+        body {
+            background-color: #1a1a1a; /* Dark background for cyberpunk theme */
+            color: #00ffcc; /* Bright cyan color */
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            height: 100vh; /* Full height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #startButton {
+            font-size: 32px;
+            padding: 20px 40px;
+            cursor: pointer;
+            background-color: #00cc99; /* Button color */
+            border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        #startButton:hover {
+            background-color: #009977; /* Darker on hover */
+        }
+        h1 {
+            display: none; /* Hides the header */
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <button id="startGame">Start Game</button>
-    </div>
-    <script>
-        document.getElementById('startGame').onclick = function() {
-            window.location.href = 'game.html';
-        };
-    </script>
+    <h1>Welcome to Have Fun!</h1>
+    <button id="startButton" onclick="window.location.href='game.html'">
+        Start Game
+    </button>
 </body>
 </html>
