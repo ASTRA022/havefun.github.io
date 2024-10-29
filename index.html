@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaveFun Game</title>
-    <link rel="stylesheet" href="style.css">
+    <title>HaveFun - Start Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1 style="display: none;">Welcome to HaveFun!</h1> <!-- Hidden Title -->
-        <button id="startGameBtn">Start Game</button>
-    </header>
-
+    <div class="container">
+        <button id="startGame">Start Game</button>
+    </div>
     <script>
-        const startSound = new Audio('start-game-sound.mp3');
-        
-        document.getElementById('startGameBtn').onclick = function() {
-            startSound.play();
-            window.location.href = "game.html"; // Redirect to the game page
+        document.getElementById('startGame').onclick = function() {
+            window.location.href = 'game.html';
         };
     </script>
 </body>
