@@ -3,130 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk Spaceship Game</title>
+    <title>Space Game</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
-            background-color: #121212; /* Dark background */
-            color: #00ff99; /* Neon green text */
+            overflow: hidden; /* Prevent scrolling */
+            background-color: #1a1a1a; /* Dark background */
+            color: #00ffcc; /* Bright text */
             font-family: 'Arial', sans-serif;
         }
-        #gameArea {
-            position: relative;
+        #gameCanvas {
+            position: absolute;
+            top: 50px; /* Adjust position below the navigation bar */
+            left: 0;
             width: 100%;
-            height: 400px; /* Game area height */
-            border: 2px solid #00ff99; /* Neon border */
-            overflow: hidden;
-            background: radial-gradient(circle, #0a0a0a, #121212); /* Dark gradient */
+            height: 500px; /* Set a fixed height for the game area */
+            background: url('background.jpg') repeat; /* Background scrolling */
         }
         #spaceship {
             position: absolute;
-            width: 50px; /* Size of spaceship */
-            bottom: 20px; /* Starting position */
-            left: 50px; /* Starting position */
+            bottom: 20px; /* Keep it above the bottom */
+            left: 100px; /* Initial position */
+            width: 50px; /* Size of the spaceship */
+            height: auto;
         }
         .obstacle {
             position: absolute;
-            width: 50px; /* Size of obstacles */
-            bottom: 0;
-        }
-        #score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #00ff99; /* Neon green score text */
-            font-size: 24px;
+            width: 50px; /* Size of the planet/asteroid */
+            height: auto;
         }
     </style>
 </head>
 <body>
-
-<div id="gameArea">
+    <div id="gameCanvas"></div>
     <img id="spaceship" src="spaceship.png" alt="Spaceship">
-    <div id="score">Score: 0</div>
-</div>
+    <audio id="jumpSound" src="jump-sound.mp3" preload="auto"></audio>
+    <audio id="startSound" src="start-sound.mp3" preload="auto"></audio>
 
-<audio id="jumpSound" src="jump-sound.mp3"></audio>
-<audio id="startSound" src="start-sound.mp3"></audio>
+    <script>
+        const gameCanvas = document.getElementById('gameCanvas');
+        const spaceship = document.getElementById('spaceship');
+        const jumpSound = document.getElementById('jumpSound');
+        const startSound = document.getElementById('startSound');
 
-<script>
-    const spaceship = document.getElementById('spaceship');
-    const gameArea = document.getElementById('gameArea');
-    const scoreDisplay = document.getElementById('score');
-    const jumpSound = document.getElementById('jumpSound');
-    const startSound = document.getElementById('startSound');
-    let score = 0;
-    let gameOver = false;
+        let obstacles = [];
+        let score = 0;
+        let gameRunning = false;
+        let gameInterval;
 
-    function createObstacle(type) {
-        const obstacle = document.createElement('img');
-        obstacle.src = type === 'planet' ? 'planet.png' : 'asteroid.png';
-        obstacle.className = 'obstacle';
-        obstacle.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
-        gameArea.appendChild(obstacle);
+        function startGame() {
+            startSound.play();
+            gameRunning = true;
+            score = 0;
+            obstacles = [];
+            gameCanvas.innerHTML = ""; // Clear previous obstacles
+            spaceship.style.bottom = '20px'; // Reset spaceship position
 
-        let obstacleInterval = setInterval(() => {
-            if (gameOver) {
-                clearInterval(obstacleInterval);
-                return;
-            }
-            obstacle.style.bottom = `${parseInt(obstacle.style.bottom) - 2}px`; // Move down
-            if (parseInt(obstacle.style.bottom) < -50) {
-                score++;
-                scoreDisplay.innerText = `Score: ${score}`;
-                obstacle.remove(); // Remove obstacle after it leaves the screen
-                clearInterval(obstacleInterval);
-            }
-            if (isColliding(spaceship, obstacle)) {
-                clearInterval(obstacleInterval);
-                endGame();
-            }
-        }, 20);
-    }
-
-    function isColliding(rect1, rect2) {
-        const rect1Bounds = rect1.getBoundingClientRect();
-        const rect2Bounds = rect2.getBoundingClientRect();
-        return !(
-            rect1Bounds.top > rect2Bounds.bottom ||
-            rect1Bounds.bottom < rect2Bounds.top ||
-            rect1Bounds.right < rect2Bounds.left ||
-            rect1Bounds.left > rect2Bounds.right
-        );
-    }
-
-    function endGame() {
-        gameOver = true;
-        alert(`Game Over! Your score: ${score}`);
-        score = 0;
-        scoreDisplay.innerText = `Score: ${score}`;
-        setTimeout(startGame, 1000);
-    }
-
-    function startGame() {
-        gameArea.innerHTML = '';
-        gameArea.appendChild(spaceship);
-        scoreDisplay.innerText = `Score: ${score}`;
-        gameOver = false;
-
-        setInterval(() => createObstacle('planet'), 2000); // Create planets every 2 seconds
-        setInterval(() => createObstacle('asteroid'), 2000); // Create asteroids every 2 seconds
-        startSound.play(); // Play start sound
-    }
-
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space') {
-            jumpSound.play(); // Play jump sound
-            spaceship.style.bottom = `${parseInt(spaceship.style.bottom) + 50}px`; // Jump
-            setTimeout(() => {
-                spaceship.style.bottom = `${parseInt(spaceship.style.bottom) - 50}px`; // Fall
-            }, 500);
+            // Start moving the background
+            gameInterval = setInterval(updateGameArea, 20);
+            createObstacle();
         }
-    });
 
-    startGame(); // Start the game when the page loads
-</script>
+        function updateGameArea() {
+            // Move obstacles left
+            obstacles.forEach(obstacle => {
+                obstacle.style.left = (parseInt(obstacle.style.left) - 5) + 'px';
+                if (parseInt(obstacle.style.left) < -50) {
+                    obstacle.remove(); // Remove off-screen obstacles
+                    score++;
+                }
+            });
 
+            // Create new obstacles every 2 seconds
+            if (Math.random() < 0.02) {
+                createObstacle();
+            }
+
+            // Check for collision
+            checkCollision();
+        }
+
+        function createObstacle() {
+            const obstacle = document.createElement('img');
+            obstacle.src = Math.random() < 0.5 ? 'planet.png' : 'asteroid.png'; // Randomly choose planet or asteroid
+            obstacle.classList.add('obstacle');
+            obstacle.style.left = '800px'; // Start on the right side
+            obstacle.style.bottom = Math.random() * 300 + 'px'; // Random height
+            gameCanvas.appendChild(obstacle);
+            obstacles.push(obstacle);
+        }
+
+        function checkCollision() {
+            const spaceshipRect = spaceship.getBoundingClientRect();
+            obstacles.forEach(obstacle => {
+                const obstacleRect = obstacle.getBoundingClientRect();
+                if (spaceshipRect.left < obstacleRect.right && 
+                    spaceshipRect.right > obstacleRect.left &&
+                    spaceshipRect.top < obstacleRect.bottom &&
+                    spaceshipRect.bottom > obstacleRect.top) {
+                    endGame();
+                }
+            });
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            alert("Game Over! Your score: " + score);
+            gameRunning = false;
+            obstacles.forEach(obstacle => obstacle.remove());
+        }
+
+        // Key controls for jumping
+        document.addEventListener('keydown', function (event) {
+            if (event.code === 'Space' && gameRunning) {
+                jump();
+            }
+        });
+
+        function jump() {
+            jumpSound.play();
+            let jumpHeight = 0;
+            let jumpInterval = setInterval(() => {
+                if (jumpHeight < 100) {
+                    spaceship.style.bottom = (parseInt(spaceship.style.bottom) + 5) + 'px'; // Jump up
+                    jumpHeight += 5;
+                } else {
+                    clearInterval(jumpInterval);
+                    fall();
+                }
+            }, 20);
+        }
+
+        function fall() {
+            let fallHeight = 100;
+            let fallInterval = setInterval(() => {
+                if (fallHeight > 0) {
+                    spaceship.style.bottom = (parseInt(spaceship.style.bottom) - 5) + 'px'; // Fall down
+                    fallHeight -= 5;
+                } else {
+                    clearInterval(fallInterval);
+                }
+            }, 20);
+        }
+
+        // Start the game when the page loads
+        window.onload = function() {
+            startGame();
+        };
+    </script>
 </body>
 </html>
