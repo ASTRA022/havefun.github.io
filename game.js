@@ -11,12 +11,11 @@ let highScore = 0;
 let isGameOver = false;
 let jump = false;
 let gravity = 1;
-let velocityY = 0;
 
 // Function to draw the spaceship
 function drawSpaceship() {
     const img = new Image();
-    img.src = 'spaceship.png'; // Ensure the image path is correct
+    img.src = 'spaceship.png'; // Make sure this path is correct
     ctx.drawImage(img, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
 }
 
@@ -43,7 +42,6 @@ function gameLoop() {
         // Gravity effect
         if (jump) {
             spaceship.y -= 5; // Adjust jump height
-            velocityY = -10; // Adjust jump speed
             jump = false;
         } else {
             spaceship.y += gravity; // Apply gravity
@@ -109,10 +107,8 @@ function gameLoop() {
 function generateObstacles() {
     const randomNum = Math.random();
     if (randomNum < 0.5) {
-        // 50% chance to generate a planet
         planets.push({ x: canvas.width, y: canvas.height - 40 });
     } else {
-        // 50% chance to generate an asteroid
         const asteroidY = Math.random() > 0.5 ? canvas.height - 50 : canvas.height - 100; // Random height
         asteroids.push({ x: canvas.width, y: asteroidY });
     }
@@ -122,10 +118,7 @@ function generateObstacles() {
 document.addEventListener('keydown', function(e) {
     if (e.code === 'Space') {
         jump = true;
-        jumpSound.play();
-    }
-    if (e.code === 'ArrowDown') {
-        // Logic to avoid asteroid (if needed)
+        document.getElementById('jumpSound').play(); // Play jump sound
     }
     if (e.code === 'KeyR' && isGameOver) {
         // Restart game
@@ -141,7 +134,7 @@ document.addEventListener('keydown', function(e) {
 // Start the game and generate obstacles every second
 function startGame() {
     setInterval(generateObstacles, 1500); // Generate an obstacle every 1.5 seconds
-    initGame();
+    gameLoop(); // Start the game loop
 }
 
 // Call startGame when the page loads
