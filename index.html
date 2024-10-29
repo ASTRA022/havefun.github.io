@@ -3,13 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Car-Cursor Website</title>
+  <title>Your Gaming-Themed Car Cursor Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Font -->
   <style>
-    /* Styling for body and page responsiveness */
+    /* Overall body styling */
     body {
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: 'Press Start 2P', sans-serif; /* Gaming-style font */
+      cursor: none; /* Hide default cursor */
+      background: radial-gradient(circle, #1e1e2e, #10101a); /* Dark theme */
+      color: #00ffcc; /* Neon green text color */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
+
     /* Car styling */
     .car {
       position: absolute;
@@ -18,10 +28,33 @@
       pointer-events: none;
       transition: transform 0.1s ease;
     }
+
+    /* Sample button styling for a gaming effect */
+    .button {
+      padding: 15px 30px;
+      background-color: #202040;
+      border: 2px solid #00ffcc;
+      color: #00ffcc;
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+      transition: 0.2s;
+      cursor: pointer;
+      box-shadow: 0px 0px 10px #00ffcc;
+    }
+
+    .button:hover {
+      background-color: #303050;
+      box-shadow: 0px 0px 15px #00ffcc;
+    }
   </style>
 </head>
 <body>
   <img src="car.png" id="car" class="car" alt="Car Cursor" />
+
+  <!-- Sample Button to Show Gaming Style -->
+  <div class="button">Start Game</div>
 
   <script>
     // JavaScript to handle car movement
