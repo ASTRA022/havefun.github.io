@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle, #1e1e2e, #10101a);
+      color: #00ffcc;
+      font-family: 'Press Start 2P', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Prevent scrolling */
+    }
+    nav {
+      background: #202040;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      text-align: center;
+    }
+    nav a {
+      color: #00ffcc;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .game-area {
+      position: absolute;
+      width: 100%;
+      height: calc(100% - 50px); /* Full height minus the nav bar */
+      top: 50px; /* Below the nav bar */
+      background: radial-gradient(circle, #1e1e2e, #10101a);
+      overflow: hidden; /* Prevent overflow of game elements */
+    }
+    .spaceship {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: url('spaceship.png') no-repeat center center; /* Make sure to upload this image */
+      background-size: contain;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="about.html">About Us</a>
+  <a href="journey.html">Our Journey</a>
+  <a href="connect.html">Connect with Us</a>
+</nav>
+
+<div class="game-area" id="gameArea">
+  <div class="spaceship" id="spaceship" style="left: 100px; bottom: 100px;"></div>
+</div>
+
+<audio id="jumpSound" src="jump-sound.mp3"></audio>
+<audio id="spaceshipJumpSound" src="spaceship-jump.mp3"></audio>
+
+<script>
+  const spaceship = document.getElementById('spaceship');
+  let isJumping = false;
+  let score = 0;
+
+  function startGame() {
+    // Implement game logic here
+    const gameArea = document.getElementById('gameArea');
+    
+    // Increment score every second
+    setInterval(() => {
+      if (!isJumping) {
+        score++;
+        console.log('Score:', score); // For testing purposes
+      }
+    }, 1000);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isJumping) {
+        isJumping = true;
+        document.getElementById('spaceshipJumpSound').play();
+
+        // Jump animation
+        let jumpHeight = 0;
+        const jumpInterval = setInterval(() => {
+          if (jumpHeight >= 150) {
+            clearInterval(jumpInterval);
+            const fallInterval = setInterval(() => {
+              if (jumpHeight <= 0) {
+                clearInterval(fallInterval);
+                isJumping = false;
+              }
+              spaceship.style.bottom = (parseInt(spaceship.style.bottom) - 5) + 'px';
+              jumpHeight -= 5;
+            }, 20);
+          }
+          spaceship.style.bottom = (parseInt(spaceship.style.bottom) + 5) + 'px';
+          jumpHeight += 5;
+        }, 20);
+      }
+    });
+  }
+
+  // Start the game when the page loads
+  window.onload = startGame;
+
+</script>
+</body>
+</html>
